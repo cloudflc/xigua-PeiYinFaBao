@@ -53,22 +53,42 @@
         <p>处理中...</p>
     </div>
     
-    <script src="https://unpkg.com/@cloudbase/js-sdk@latest/dist/cloudbase.full.js"></script>
     <script>
-        // 检查 CloudBase SDK 是否加载
-        window.addEventListener('load', function() {
-            if (typeof cloudbase === 'undefined') {
-                console.error('CloudBase SDK 加载失败');
-                alert('CloudBase SDK 加载失败，请检查网络连接后重试');
-            } else {
+        // 动态加载 CloudBase SDK
+        function loadCloudBaseSDK() {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@cloudbase/js-sdk@latest/dist/cloudbase.full.js';
+            script.onload = function() {
                 console.log('CloudBase SDK 加载成功');
                 // 重命名为 tcb 以保持兼容性
                 window.tcb = cloudbase;
                 // 加载应用脚本
-                const script = document.createElement('script');
-                script.src = 'script.js';
-                document.body.appendChild(script);
-            }
+                loadAppScript();
+            };
+            script.onerror = function() {
+                console.error('CloudBase SDK 加载失败');
+                alert('CloudBase SDK 加载失败，请检查网络连接后重试');
+            };
+            document.head.appendChild(script);
+        }
+        
+        // 加载应用脚本
+        function loadAppScript() {
+            const script = document.createElement('script');
+            script.src = 'script.js?v=' + new Date().getTime(); // 添加时间戳避免缓存
+            script.onload = function() {
+                console.log('应用脚本加载成功');
+            };
+            script.onerror = function() {
+                console.error('应用脚本加载失败');
+                alert('应用脚本加载失败，请刷新页面重试');
+            };
+            document.body.appendChild(script);
+        }
+        
+        // 页面加载完成后开始加载 SDK
+        window.addEventListener('load', function() {
+            loadCloudBaseSDK();
         });
     </script>
 </body>
