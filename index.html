@@ -53,7 +53,23 @@
         <p>处理中...</p>
     </div>
     
-    <script src="https://imgcache.qq.com/qcloud/tcbjs/1.11.2/tcb.js"></script>
-    <script src="script.js"></script>
+    <script src="https://unpkg.com/@cloudbase/js-sdk@latest/dist/cloudbase.full.js"></script>
+    <script>
+        // 检查 CloudBase SDK 是否加载
+        window.addEventListener('load', function() {
+            if (typeof cloudbase === 'undefined') {
+                console.error('CloudBase SDK 加载失败');
+                alert('CloudBase SDK 加载失败，请检查网络连接后重试');
+            } else {
+                console.log('CloudBase SDK 加载成功');
+                // 重命名为 tcb 以保持兼容性
+                window.tcb = cloudbase;
+                // 加载应用脚本
+                const script = document.createElement('script');
+                script.src = 'script.js';
+                document.body.appendChild(script);
+            }
+        });
+    </script>
 </body>
 </html>
