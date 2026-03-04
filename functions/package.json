@@ -1,0 +1,16 @@
+{
+  "name": "script-converter-cloud-functions",
+  "version": "1.0.0",
+  "description": "CloudBase functions for script converter",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "tcb functions:deploy"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.10.0",
+    "docx": "^7.7.0"
+  },
+  "devDependencies": {
+    "@cloudbase/cli": "^1.9.0"
+  }
+}

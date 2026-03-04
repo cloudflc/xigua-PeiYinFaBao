@@ -1,0 +1,16 @@
+{
+  "functions": [
+    {
+      "name": "analyzeScript",
+      "timeout": 5,
+      "runtime": "Node.js 12.16",
+      "memory": 256
+    },
+    {
+      "name": "generateTemplate",
+      "timeout": 10,
+      "runtime": "Node.js 12.16",
+      "memory": 512
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脚本转配音发包模板工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 脚本转配音发包模板工具</h1>
+            <p>将脚本文件转换为配音发包模板格式</p>
+        </header>
+        
+        <main>
+            <section class="upload-section">
+                <h2>1. 上传脚本文件</h2>
+                <div class="upload-area">
+                    <input type="file" id="fileInput" accept=".docx">
+                    <label for="fileInput">
+                        <div class="upload-icon">📁</div>
+                        <p>点击或拖拽文件到此处上传</p>
+                        <small>支持 .docx 格式</small>
+                    </label>
+                </div>
+            </section>
+            
+            <section class="roles-section" style="display: none;">
+                <h2>2. 选择角色</h2>
+                <div class="roles-list" id="rolesList">
+                    <!-- 角色列表将通过JavaScript动态生成 -->
+                </div>
+                <div class="role-actions">
+                    <button id="selectAllBtn">全选</button>
+                    <button id="deselectAllBtn">全不选</button>
+                </div>
+            </section>
+            
+            <section class="generate-section" style="display: none;">
+                <h2>3. 生成模板</h2>
+                <button id="generateBtn">生成并下载模板</button>
+            </section>
+        </main>
+        
+        <footer>
+            <p>© 2026 脚本转配音发包模板工具</p>
+        </footer>
+    </div>
+    
+    <div class="loading" id="loading" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>处理中...</p>
+    </div>
+    
+    <script src="https://imgcache.qq.com/qcloud/tcbjs/1.11.2/tcb.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
