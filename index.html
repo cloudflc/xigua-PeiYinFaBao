@@ -14,32 +14,46 @@
         </header>
         
         <main>
-            <section class="upload-section">
-                <h2>1. 上传脚本文件</h2>
-                <div class="upload-area">
-                    <input type="file" id="fileInput" accept=".docx">
-                    <label for="fileInput">
-                        <div class="upload-icon">📁</div>
-                        <p>点击或拖拽文件到此处上传</p>
-                        <small>支持 .docx 格式</small>
-                    </label>
+            <section class="upload-section" id="step1">
+                <h2><span class="step-num">1</span> 上传脚本文件</h2>
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <input type="file" id="fileInput" accept=".docx,.txt" style="display:none;">
+                    <div class="upload-icon">📁</div>
+                    <p>点击或拖拽文件到此处上传</p>
+                    <small>支持 .docx 和 .txt 格式</small>
+                </div>
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <span id="fileName"></span>
+                    <button id="changeFileBtn">更换文件</button>
                 </div>
             </section>
             
-            <section class="roles-section" style="display: none;">
-                <h2>2. 选择角色</h2>
-                <div class="roles-list" id="rolesList">
-                    <!-- 角色列表将通过JavaScript动态生成 -->
-                </div>
+            <section class="roles-section" id="step2" style="display: none;">
+                <h2><span class="step-num">2</span> 选择说话人</h2>
+                <p class="tip">请勾选脚本中所有的说话人（包括需要配音的角色和不需要配音的旁白、引导语等）</p>
+                <div class="roles-list" id="rolesList"></div>
                 <div class="role-actions">
                     <button id="selectAllBtn">全选</button>
                     <button id="deselectAllBtn">全不选</button>
+                    <button id="confirmRolesBtn" class="primary-btn">下一步</button>
                 </div>
             </section>
             
-            <section class="generate-section" style="display: none;">
-                <h2>3. 生成模板</h2>
-                <button id="generateBtn">生成并下载模板</button>
+            <section class="keep-section" id="step2_5" style="display: none;">
+                <h2><span class="step-num">2.5</span> 选择需要保留的说话人</h2>
+                <p class="tip">请勾选需要在配音模板中保留台词的说话人（不勾选则该说话人的台词会被删除）</p>
+                <div class="roles-list" id="keepRolesList"></div>
+                <div class="role-actions">
+                    <button id="selectAllKeepBtn">全选</button>
+                    <button id="deselectAllKeepBtn">全不选</button>
+                    <button id="confirmKeepBtn" class="primary-btn">确认并生成</button>
+                </div>
+            </section>
+            
+            <section class="generate-section" id="step3" style="display: none;">
+                <h2><span class="step-num">3</span> 生成模板</h2>
+                <p class="selected-info">已选择 <span id="selectedCount">0</span> 个说话人</p>
+                <button id="generateBtn" class="primary-btn">生成并下载配音发包模板</button>
             </section>
         </main>
         
@@ -50,46 +64,190 @@
     
     <div class="loading" id="loading" style="display: none;">
         <div class="loading-spinner"></div>
-        <p>处理中...</p>
+        <p id="loadingText">处理中...</p>
     </div>
-    
+
     <script>
-        // 动态加载 CloudBase SDK
-        function loadCloudBaseSDK() {
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/@cloudbase/js-sdk@latest/dist/cloudbase.full.js';
-            script.onload = function() {
-                console.log('CloudBase SDK 加载成功');
-                // 重命名为 tcb 以保持兼容性
-                window.tcb = cloudbase;
-                // 加载应用脚本
-                loadAppScript();
-            };
-            script.onerror = function() {
-                console.error('CloudBase SDK 加载失败');
-                alert('CloudBase SDK 加载失败，请检查网络连接后重试');
-            };
-            document.head.appendChild(script);
+        let uploadedFile = null;
+        let allSpeakers = [];
+        let selectedSpeakers = [];
+        let keepSpeakers = [];
+        
+        function showLoading(text = '处理中...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loading').style.display = 'flex';
         }
         
-        // 加载应用脚本
-        function loadAppScript() {
-            const script = document.createElement('script');
-            script.src = 'script.js?v=' + new Date().getTime(); // 添加时间戳避免缓存
-            script.onload = function() {
-                console.log('应用脚本加载成功');
-            };
-            script.onerror = function() {
-                console.error('应用脚本加载失败');
-                alert('应用脚本加载失败，请刷新页面重试');
-            };
-            document.body.appendChild(script);
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
         }
         
-        // 页面加载完成后开始加载 SDK
-        window.addEventListener('load', function() {
-            loadCloudBaseSDK();
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        
+        document.getElementById('changeFileBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
         });
+        
+        document.getElementById('selectAllBtn').addEventListener('click', () => {
+            document.querySelectorAll('.speaker-item input[type="checkbox"]').forEach(cb => cb.checked = true);
+            updateSelectedCount();
+        });
+        
+        document.getElementById('deselectAllBtn').addEventListener('click', () => {
+            document.querySelectorAll('.speaker-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updateSelectedCount();
+        });
+        
+        document.getElementById('confirmRolesBtn').addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.speaker-item input[type="checkbox"]:checked');
+            selectedSpeakers = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (selectedSpeakers.length === 0) {
+                alert('请至少选择一个说话人');
+                return;
+            }
+            
+            displayKeepRoles();
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step2_5').style.display = 'block';
+        });
+        
+        document.getElementById('selectAllKeepBtn').addEventListener('click', () => {
+            document.querySelectorAll('.keep-item input[type="checkbox"]').forEach(cb => cb.checked = true);
+        });
+        
+        document.getElementById('deselectAllKeepBtn').addEventListener('click', () => {
+            document.querySelectorAll('.keep-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+        });
+        
+        document.getElementById('confirmKeepBtn').addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.keep-item input[type="checkbox"]:checked');
+            keepSpeakers = Array.from(checkboxes).map(cb => cb.value);
+            
+            document.getElementById('step2_5').style.display = 'none';
+            document.getElementById('step3').style.display = 'block';
+            document.getElementById('selectedCount').textContent = keepSpeakers.length;
+            
+            generateTemplate();
+        });
+        
+        document.getElementById('generateBtn').addEventListener('click', generateTemplate);
+        
+        async function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const validTypes = ['.docx', '.txt'];
+            const fileName = file.name.toLowerCase();
+            if (!validTypes.some(type => fileName.endsWith(type))) {
+                alert('请上传 .docx 或 .txt 格式的文件');
+                return;
+            }
+            
+            uploadedFile = file;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('uploadArea').style.display = 'none';
+            document.getElementById('fileInfo').style.display = 'flex';
+            
+            showLoading('正在识别说话人...');
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch('http://localhost:8888/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('分析失败');
+                
+                const data = await response.json();
+                allSpeakers = data.speakers;
+                
+                displayRoles(allSpeakers);
+                document.getElementById('step2').style.display = 'block';
+            } catch (error) {
+                alert('文件处理失败: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function displayRoles(speakers) {
+            const rolesList = document.getElementById('rolesList');
+            rolesList.innerHTML = '';
+            
+            speakers.forEach((speaker, index) => {
+                const item = document.createElement('div');
+                item.className = 'speaker-item';
+                
+                item.innerHTML = `
+                    <input type="checkbox" id="role-${index}" value="${speaker}" checked>
+                    <label for="role-${index}">${speaker}</label>
+                `;
+                
+                item.querySelector('input').addEventListener('change', updateSelectedCount);
+                rolesList.appendChild(item);
+            });
+            
+            updateSelectedCount();
+        }
+        
+        function displayKeepRoles() {
+            const keepList = document.getElementById('keepRolesList');
+            keepList.innerHTML = '';
+            
+            selectedSpeakers.forEach((speaker, index) => {
+                const item = document.createElement('div');
+                item.className = 'keep-item';
+                
+                item.innerHTML = `
+                    <input type="checkbox" id="keep-${index}" value="${speaker}" checked>
+                    <label for="keep-${index}">${speaker}</label>
+                `;
+                
+                keepList.appendChild(item);
+            });
+        }
+        
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.speaker-item input[type="checkbox"]:checked');
+            document.getElementById('selectedCount').textContent = checkboxes.length;
+        }
+        
+        async function generateTemplate() {
+            showLoading('正在生成配音发包模板...');
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', uploadedFile);
+                formData.append('speakers', JSON.stringify(selectedSpeakers));
+                formData.append('keepSpeakers', JSON.stringify(keepSpeakers));
+                
+                const response = await fetch('http://localhost:8888/api/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || '生成失败');
+                }
+                
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `配音发包模板_${Date.now()}.docx`;
+                link.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('生成失败: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
     </script>
 </body>
 </html>

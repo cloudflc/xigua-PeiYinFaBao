@@ -6,6 +6,11 @@ node_modules/
 *.tmp
 *.temp
 
+# 测试和输出文件
+*.docx
+*.txt
+!测试脚本.txt
+
 # 环境变量文件
 .env
 .env.local

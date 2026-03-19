@@ -51,9 +51,34 @@ section {
 
 section h2 {
     color: #333;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     font-size: 20px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.step-num {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    border-radius: 50%;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.tip {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9ff;
+    border-radius: 6px;
+    border-left: 3px solid #4facfe;
 }
 
 .upload-area {
@@ -90,6 +115,31 @@ section h2 {
     display: none;
 }
 
+.file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: #f8f9ff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.file-info span {
+    color: #333;
+    font-size: 14px;
+}
+
+.file-info button {
+    padding: 8px 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
 .roles-list {
     max-height: 300px;
     overflow-y: auto;
@@ -99,31 +149,37 @@ section h2 {
     margin-bottom: 20px;
 }
 
-.role-item {
+.speaker-item {
     display: flex;
     align-items: center;
     padding: 10px;
     border-bottom: 1px solid #f0f0f0;
 }
 
-.role-item:last-child {
+.speaker-item:last-child {
     border-bottom: none;
 }
 
-.role-item input[type="checkbox"] {
+.speaker-item input[type="checkbox"] {
     margin-right: 10px;
     transform: scale(1.2);
+    cursor: pointer;
 }
 
-.role-item label {
+.speaker-item label {
     font-size: 14px;
     color: #333;
     cursor: pointer;
 }
 
+.speaker-item:hover {
+    background: #f8f9ff;
+}
+
 .role-actions {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 button {
@@ -146,12 +202,32 @@ button:hover {
     color: white;
 }
 
-#generateBtn {
+.primary-btn {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     color: white;
     font-size: 16px;
     padding: 15px 30px;
+}
+
+#confirmRolesBtn {
+    background: #28a745;
+    color: white;
+    margin-left: auto;
+}
+
+#generateBtn {
     width: 100%;
+}
+
+.selected-info {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.selected-info span {
+    color: #4facfe;
+    font-weight: 600;
 }
 
 footer {
@@ -211,5 +287,14 @@ footer {
     
     .upload-area {
         padding: 30px;
+    }
+    
+    .role-actions {
+        flex-direction: column;
+    }
+    
+    #confirmRolesBtn {
+        margin-left: 0;
+        width: 100%;
     }
 }
