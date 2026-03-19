@@ -1,8 +1,11 @@
 {
   "name": "script-converter-local",
   "version": "1.0.0",
-  "description": "本地脚本转配音发包模板工具",
+  "description": "脚本转配音发包模板工具",
   "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node server.js"
   },
