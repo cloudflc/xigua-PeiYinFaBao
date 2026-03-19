@@ -155,7 +155,7 @@
                 const formData = new FormData();
                 formData.append('file', file);
                 
-                const response = await fetch('http://localhost:8888/api/analyze', {
+                const response = await fetch('/api/analyze', {
                     method: 'POST',
                     body: formData
                 });
@@ -225,7 +225,7 @@
                 formData.append('speakers', JSON.stringify(selectedSpeakers));
                 formData.append('keepSpeakers', JSON.stringify(keepSpeakers));
                 
-                const response = await fetch('http://localhost:8888/api/generate', {
+                const response = await fetch('/api/generate', {
                     method: 'POST',
                     body: formData
                 });
